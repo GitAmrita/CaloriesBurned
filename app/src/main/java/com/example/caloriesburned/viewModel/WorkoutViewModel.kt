@@ -3,18 +3,27 @@ package com.example.caloriesburned.viewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.caloriesburned.model.Workout
+import com.example.caloriesburned.repository.WorkoutRepository
+import com.example.caloriesburned.usecase.WorkoutUseCase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.LinkedList
 
-class WorkoutViewModel: ViewModel() {
+class WorkoutViewModel(private val workoutRepo: WorkoutRepository): ViewModel() {
     val workoutsLiveData : LiveData<List<Workout>>
        get() = workoutsData
     private var workoutsData = MutableLiveData<List<Workout>>()
 
 
-    fun getWorkouts(activity: String){
+     fun getWorkouts(activity: String){
+         viewModelScope.launch(Dispatchers.Main) {
+             val response = WorkoutUseCase(workoutRepo).getWorkouts(activity);
+             workoutsData.value = workoutRepo.getWorkouts(activity)
+         }
         // todo add repository call here
-        workoutsData.value = contentProvider()
+       // workoutsData.value = contentProvider()
     }
 
     private fun contentProvider():LinkedList<Workout> {
